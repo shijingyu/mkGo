@@ -38,14 +38,10 @@ func RandStringBytesMaskImprSrc(n int) string {
 	}
 	return string(b)
 }
-func checkErr(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
+
 func main() {
 
-	gin.SetMode(gin.ReleaseMode)
+	//gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	db, err := sql.Open("sqlite3", "./url.db")
 	if err != nil {
@@ -93,7 +89,7 @@ func main() {
 	//解析短连接渲染及解析短链
 	r.GET("/u/:shorturl", func(c *gin.Context) {
 		shorturl := c.Param("shorturl")
-		log.Print(shorturl)
+
 		if shorturl == "false" {
 			c.String(200, "网络错误，刷新一下页面")
 		}
@@ -103,14 +99,10 @@ func main() {
 		var longurl string
 		var ele string
 		//查询该时间戳对应的数据，如果是个短链则返回短链，否则则是是中间页 就渲染
-		//err := db.QueryRow("select url,cms,ele,longurl, shorturl from urlinfo where shorturl = ?  limit  1", shorturl).Scan(&url, &cms, &ele, &longurl, &shorturl)
-		rows, err := db.Query("select * from urlinfo where shorturl = ? limit 1", shorturl)
-		checkErr(err)
-		for rows.Next() {
-			err = rows.Scan(&url, &cms, &ele, &longurl, &shorturl)
-			checkErr(err)
+		err := db.QueryRow("select url,cms,ele,longurl, shorturl from urlinfo where shorturl = ?  limit  1", shorturl).Scan(&url, &cms, &ele, &longurl, &shorturl)
+		if err != nil {
+			log.Fatal(err)
 		}
-
 		if longurl != "" { //解析短连接
 			c.Redirect(http.StatusMovedPermanently, longurl)
 		} else {

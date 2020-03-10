@@ -87,7 +87,7 @@ func main() {
 		})
 	})
 	//解析短连接渲染及解析短链
-	r.GET("/tb/:shorturl", func(c *gin.Context) {
+	r.GET("/u/:shorturl", func(c *gin.Context) {
 		shorturl := c.Param("shorturl")
 		var url string
 		var cms string

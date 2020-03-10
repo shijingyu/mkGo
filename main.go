@@ -89,6 +89,7 @@ func main() {
 	//解析短连接渲染及解析短链
 	r.GET("/u/:shorturl", func(c *gin.Context) {
 		shorturl := c.Param("shorturl")
+		log.Print(shorturl)
 		if shorturl == "false" {
 			c.String(200, "网络错误，刷新一下页面")
 		}

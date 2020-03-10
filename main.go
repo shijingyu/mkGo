@@ -87,15 +87,15 @@ func main() {
 		})
 	})
 	//解析短连接渲染及解析短链
-	r.GET("/u/:shorturl", func(c *gin.Context) {
+	go r.GET("/u/:shorturl", func(c *gin.Context) {
 		shorturl := c.Param("shorturl")
+		log.Print(shorturl)
 		var url string
 		var cms string
 		var longurl string
 		var ele string
 		//查询该时间戳对应的数据，如果是个短链则返回短链，否则则是是中间页 就渲染
 		err := db.QueryRow("select url,cms,ele,longurl, shorturl from urlinfo where shorturl = ?  limit  1", shorturl).Scan(&url, &cms, &ele, &longurl, &shorturl)
-		log.Print(shorturl)
 		if err != nil {
 			log.Fatal(err)
 		}

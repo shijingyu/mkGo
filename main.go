@@ -41,7 +41,7 @@ func RandStringBytesMaskImprSrc(n int) string {
 
 func main() {
 
-	gin.SetMode(gin.ReleaseMode)
+	//gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	db, err := sql.Open("sqlite3", "./url.db")
 	if err != nil {

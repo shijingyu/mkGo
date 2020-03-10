@@ -41,7 +41,7 @@ func RandStringBytesMaskImprSrc(n int) string {
 
 func main() {
 
-	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	db, err := sql.Open("sqlite3", "./url.db")
 	if err != nil {
@@ -102,6 +102,7 @@ func main() {
 		err := db.QueryRow("select url,cms,ele,longurl, shorturl from urlinfo where shorturl = ?  limit  1", shorturl).Scan(&url, &cms, &ele, &longurl, &shorturl)
 		if err != nil {
 			log.Fatal(err)
+			return
 		}
 		if longurl != "" { //解析短连接
 			c.Redirect(http.StatusMovedPermanently, longurl)

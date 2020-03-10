@@ -8,6 +8,7 @@ import (
 	"github.com/robfig/cron"
 	"log"
 	"math/rand"
+	"net/http"
 	"time"
 )
 
@@ -98,10 +99,7 @@ func main() {
 			log.Fatal(err)
 		}
 		if longurl != "" { //解析短连接
-			c.JSON(200, gin.H{
-				"code":    200,
-				"longurl": longurl,
-			})
+			c.Redirect(http.StatusMovedPermanently, longurl)
 		} else {
 			r.LoadHTMLFiles("html/index.tmpl")
 			c.HTML(200, "index.tmpl", gin.H{

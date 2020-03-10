@@ -89,19 +89,19 @@
       
     <div class="beatWord">
         {{if .cms}}
-        <a id="coupons" href="{{.cms}}" style="background: #712ae8;border: none;font-size: 16px;padding: 6px 15px;display: inline-block;border-radius: 16px;color: #fff;text-decoration: none;  ">
+        <a id="cms" href="{{.cms}}" style="background: #712ae8;border: none;font-size: 16px;padding: 6px 15px;display: inline-block;border-radius: 16px;color: #fff;text-decoration: none;  ">
             自助查券
         </a>
         {{end}}
         {{if .ele}}
-        <a id="coupons" href="{{.ele}}" style="background: #712ae8;border: none;font-size: 16px;padding: 6px 15px;display: inline-block;margin: 10px 4px 10px 4px;border-radius: 16px;color: #fff;text-decoration: none;">
+        <a id="ele" href="{{.ele}}" style="background: #712ae8;border: none;font-size: 16px;padding: 6px 15px;display: inline-block;margin: 10px 4px 10px 4px;border-radius: 16px;color: #fff;text-decoration: none;">
             饿了么红包
         </a>
         {{end}}
     </div>
 
     <script type="text/javascript" src="http://static.shitouboy.com/jquery.min.js"></script>
-    <script type="text/javascript" src="http://static.shitouboy.com/jquery.min.js"></script>
+    <script type="text/javascript" src="http://static.shitouboy.com/clipboard.min.js"></script>
     <script>
         //获得参数
         function getQueryString(name) {
@@ -111,7 +111,7 @@
                 return unescape(r[2]);
             };
             return null;
-        }   
+        }
         function gb() {
             alert("您选择了不跳转，请手动退出当前页面哦~");
         }
@@ -131,21 +131,24 @@
             if (/ipad|iphone|midp|rv:1.2.3.4|ucweb|android|windows ce|windows mobile/.test(sUserAgent)) {
                 //跳转移动端页面
                 var url = document.getElementById("koulingURL").href
-
                 var koulinURL ="taobao:"+decodeURIComponent(url);
                 document.getElementById("koulingURL").href = koulinURL.replace(/https:/g, "") ;
-                console.log(document.getElementById("koulingURL").href)
-                document.getElementById("nr").innerHTML="是否需要跳转至APP领取：";
-                document.getElementById("itemWord").innerHTML="点击下方按钮·即可直接跳转至APP领取";
-                
+                console.log("koulingURL", document.getElementById("koulingURL").href)
+                // document.getElementById("nr").innerHTML="是否需要跳转至APP领取：";
+                // document.getElementById("itemWord").innerHTML="点击下方按钮·即可直接跳转至APP领取";
+
+                var ele = document.getElementById("ele").href
+                var eleUrl ="taobao:" + decodeURIComponent(ele);
+                document.getElementById("ele").href = eleUrl .replace(/https:/g, "") ;
+                console.log("ele", document.getElementById("ele").href)
+
 
             } else {
                 //跳转pc端页面
-
-                var koulinURL =document.getElementById("koulingURL").href
+                var koulinURL =decodeURIComponent(getQueryVariable("url"));
                 document.getElementById("koulingURL").href = koulinURL;
-                document.getElementById("nr").innerHTML="是否需要跳转至网页领取：";
-                document.getElementById("itemWord").innerHTML="点击下方按钮·即可直接打开网页领取";    
+                // document.getElementById("nr").innerHTML="是否需要跳转至网页领取：";
+                // document.getElementById("itemWord").innerHTML="点击下方按钮·即可直接打开网页领取";
                 
             }
         });

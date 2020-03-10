@@ -101,6 +101,7 @@ func main() {
 		if longurl != "" { //解析短连接
 			c.Redirect(http.StatusMovedPermanently, longurl)
 		} else {
+
 			r.LoadHTMLFiles("html/index.tmpl")
 			c.HTML(200, "index.tmpl", gin.H{
 				"url": url,

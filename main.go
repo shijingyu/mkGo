@@ -7,10 +7,39 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/robfig/cron"
 	"log"
+	"math/rand"
 	"time"
 )
 
-func main()  {
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+const (
+	letterIdxBits = 6                    // 6 bits to represent a letter index
+	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
+	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
+)
+
+var src = rand.NewSource(time.Now().UnixNano())
+
+func RandStringBytesMaskImprSrc(n int) string {
+	b := make([]byte, n)
+	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
+		if remain == 0 {
+			cache, remain = src.Int63(), letterIdxMax
+		}
+		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
+			b[i] = letterBytes[idx]
+			i--
+		}
+		cache >>= letterIdxBits
+		remain--
+	}
+	return string(b)
+}
+
+func main() {
+
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	db, err := sql.Open("sqlite3", "./url.db")
@@ -44,50 +73,46 @@ func main()  {
 		ele := c.PostForm("ele")
 		longurl := c.PostForm("longurl")
 		//入库 返回url
-		timeUnix:=time.Now().Unix()
+		timeUnix := time.Now().Unix()
+		shorturl := RandStringBytesMaskImprSrc(6)
 
-		stmt, err := db.Prepare("INSERT INTO urlinfo(url, cms, ele, timeUnix, longurl) values(?,?,?,?,?)")
+		stmt, err := db.Prepare("INSERT INTO urlinfo(url, cms, ele, timeUnix, longurl, shorturl) values(?,?,?,?,?,?)")
 		if err != nil {
 			log.Fatal(err)
 		}
-		stmt.Exec(url, cms, ele, timeUnix, longurl)
+		stmt.Exec(url, cms, ele, timeUnix, longurl, shorturl)
 		c.JSON(200, gin.H{
-			"result":timeUnix,
+			"result": shorturl,
 		})
 	})
 	//解析短连接渲染及解析短链
-	r.GET("/tb/:timeUnix", func(c *gin.Context) {
-		timeUnix := c.Param("timeUnix")
+	r.GET("/tb/:shorturl", func(c *gin.Context) {
+		shorturl := c.Param("shorturl")
 		var url string
 		var cms string
 		var longurl string
 		var ele string
 		//查询该时间戳对应的数据，如果是个短链则返回短链，否则则是是中间页 就渲染
-		err := db.QueryRow("select url,cms,ele,longurl from urlinfo where timeUnix = ?  limit  1" , timeUnix).Scan(&url, &cms, &ele, &longurl)
+		err := db.QueryRow("select url,cms,ele,longurl, shorturl from urlinfo where shorturl = ?  limit  1", shorturl).Scan(&url, &cms, &ele, &longurl, &shorturl)
 		if err != nil {
 			log.Fatal(err)
 		}
-		if longurl != "" {		//解析短连接
-			c.JSON(200,gin.H{
-				"code":200,
-				"longurl":longurl,
+		if longurl != "" { //解析短连接
+			c.JSON(200, gin.H{
+				"code":    200,
+				"longurl": longurl,
 			})
-		}else {
+		} else {
 			r.LoadHTMLFiles("html/index.tmpl")
-			c.HTML(200,"index.tmpl", gin.H{
-				"url":url,
-				"ele":ele,
-				"cms":cms,
+			c.HTML(200, "index.tmpl", gin.H{
+				"url": url,
+				"ele": ele,
+				"cms": cms,
 			})
 
 		}
 
-
-
-
-
 	})
-
 
 	//r.LoadHTMLFiles("html/index.tmpl")
 	//c.HTML(200,"index.tmpl", gin.H{
@@ -95,8 +120,6 @@ func main()  {
 	//	"ele":ele,
 	//})
 
-
 	r.Run(":80")
 
 }
-

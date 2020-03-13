@@ -71,17 +71,20 @@ func main() {
 		//获取参数
 		url := c.PostForm("url")
 		cms := c.PostForm("cms")
+		title := c.PostForm("title")
+		diyButton := c.PostForm("diyButton")
+		diyUrl := c.PostForm("diyUrl")
 		ele := c.PostForm("ele")
 		longurl := c.PostForm("longurl")
 		//入库 返回url
 		timeUnix := time.Now().Unix()
 		shorturl := RandStringBytesMaskImprSrc(6)
 
-		stmt, err := db.Prepare("INSERT INTO urlinfo(url, cms, ele, timeUnix, longurl, shorturl) values(?,?,?,?,?,?)")
+		stmt, err := db.Prepare("INSERT INTO urlinfo(url, cms, ele, timeUnix, longurl, shorturl, title, diyButton, diyUrl) values(?,?,?,?,?,?,?,?,?)")
 		if err != nil {
 			log.Fatal(err)
 		}
-		stmt.Exec(url, cms, ele, timeUnix, longurl, shorturl)
+		stmt.Exec(url, cms, ele, timeUnix, longurl, shorturl, title, diyButton, diyUrl)
 		c.JSON(200, gin.H{
 			"result": shorturl,
 		})
@@ -98,8 +101,11 @@ func main() {
 		var cms string
 		var longurl string
 		var ele string
+		var title string
+		var diyButton string
+		var diyUrl string
 		//查询该时间戳对应的数据，如果是个短链则返回短链，否则则是是中间页 就渲染
-		err := db.QueryRow("select url,cms,ele,longurl, shorturl from urlinfo where shorturl = ?  limit  1", shorturl).Scan(&url, &cms, &ele, &longurl, &shorturl)
+		err := db.QueryRow("select url,cms,ele,longurl, shorturl, title, diyButton, diyUrl from urlinfo where shorturl = ?  limit  1", shorturl).Scan(&url, &cms, &ele, &longurl, &shorturl, &title, &diyButton, &diyUrl)
 		if err != nil {
 			log.Print(err)
 			return
@@ -110,9 +116,12 @@ func main() {
 
 			r.LoadHTMLFiles("html/index.tmpl")
 			c.HTML(200, "index.tmpl", gin.H{
-				"url": url,
-				"ele": ele,
-				"cms": cms,
+				"url":       url,
+				"ele":       ele,
+				"cms":       cms,
+				"title":     title,
+				"diyButton": diyButton,
+				"diyUrl":    diyUrl,
 			})
 
 		}
